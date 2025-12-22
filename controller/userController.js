@@ -12,6 +12,10 @@ export async function loginUser(req, res, next) {
             return res.status(404).json({ success: true, data, message: "No user found" });
         }
 
+        if(!user.isActive && user.isDeleted){
+            return res.status(404).json({ success: false, message: "Your Account is Deleted or Deactived Please contact Admin" });
+        }
+        
         let match = await verifyPassword(password, user.password);
 
         if (!match) {
@@ -94,17 +98,15 @@ export async function updateUser(req, res) {
     }
 }
 
-export async function deleteStudents(req, res, next) {
-    const students_id = req.params.id
+export async function deleteUser(req, res, next) {
     try {
-        let db = await DbConnect();
-        let Students = db.collection("students")
-        let data = await Students.deleteOne({ _id: new ObjectId(students_id) })
-        if (data) {
-            res.status(200).json({ success: true, data, message: "success" })
-        } else {
-            res.status(404).json({ success: true, data, message: "Students Not Added" })
+         let user = await userModel.findByIdAndUpdate(req.user._id, {isDeleted : true,isActive : false}, { new: true }).select("-password -__v");
+
+        if (!user) {
+            res.status(204).json({ success: false, user, message: "user not deleted" })
         }
+
+        res.status(200).json({ success: true, user, message: "user Deleted" });
     } catch (error) {
         res.status(500).json({ success: false, data: null, message: error.message })
     }
