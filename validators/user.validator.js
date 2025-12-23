@@ -43,4 +43,9 @@ export const updateUserValidator = [
     .trim()
     .isDate()
     .optional(),
+
+  body("gender")
+    .trim()
+    .equals(["male","female","other"])
+    .optional(),
 ];
