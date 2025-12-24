@@ -9,6 +9,7 @@ import DbConnect from "../config/db.config.js"
 import debug from 'debug';
 import http from 'http';
 import { config } from "dotenv"
+import initSocket from '../webSocket/socket.js';
 debug('express-generator:server');
 config()
 
@@ -26,6 +27,7 @@ app.set('port', port);
 
 const server = http.createServer(app);
 
+initSocket(server)
 /**
  * Listen on provided port, on all network interfaces.
  */

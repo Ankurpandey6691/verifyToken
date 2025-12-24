@@ -9,7 +9,10 @@ const chatSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "users"
     }],
-    isGroup: false,
+    isGroup: {
+        type: Boolean,
+        default: false
+    },
     group_name: {
         type: String,
         trim: true,
@@ -44,4 +47,4 @@ const chatSchema = new Schema({
 
 }, { timestamps: true });
 
-export default model("chats",chatSchema);
+export default model("chats", chatSchema);

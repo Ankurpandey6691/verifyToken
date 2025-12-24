@@ -1,5 +1,6 @@
 import chatModel from "../models/chat.model.js"
 import MessageModel from "../models/message.model.js"
+import { getIo } from "../webSocket/socket.js";
 
 
 // one and one chat option created-
@@ -112,9 +113,9 @@ export const sendMessage = async (req, res) => {
             lastMessage: getMessage._id,
         });
 
-        // let io = getIo();
+        let io = getIo();
 
-        // io.to(chatId).emit("newMessage", getMessage);
+        io.to(chatId).emit("newMessage", getMessage);
 
         res.status(201).json({ success: true, data: message, message: "message Sent" });
 
