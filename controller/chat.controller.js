@@ -16,13 +16,14 @@ export const accessChat = async (req, res) => {
         let chat = await chatModel.findOne({
             isGroup: false,
             members: { $all: [myId, receiverId], $size: 2 },
-        }).populate("members lastMessage");
+        }).populate("members last_message");
 
         if (chat) return res.status(200).json({ success: true, data: chat, message: "success" });
 
         const newChat = await chatModel.create({
             members: [myId, receiverId],
         });
+
 
         res.status(201).json({ success: true, data: newChat, message: "success" });
 
@@ -40,7 +41,7 @@ export const getMyChats = async (req, res) => {
         const chats = await chatModel.find({
             members: req.user._id,
         })
-            .populate("members lastMessage")
+            .populate("members last_message")
             .sort({ updatedAt: -1 });
 
         res.json({ success: true, data: chats, message: "success" });
@@ -88,15 +89,15 @@ export const getMessages = async (req, res) => {
             .sort({ createdAt: 1 })
             .populate("sender", "user_name email");
 
-        res.json(new ServerResponse(true, messages, "success", null));
+        res.json({ success: true, data: messages, message: "success" });
     } catch (error) {
-        res.status(500).json(new ServerResponse(false, null, error.message, error));
+        res.status(500).json({ success: false, data: null, message: error.message });
     }
 };
 
 
 /**
- * Send Message
+ * Send Messagea
  */
 export const sendMessage = async (req, res) => {
     const { chatId, message } = req.body;
@@ -110,7 +111,7 @@ export const sendMessage = async (req, res) => {
         });
 
         await chatModel.findByIdAndUpdate(chatId, {
-            lastMessage: getMessage._id,
+            last_message: getMessage._id,
         });
 
         let io = getIo();
