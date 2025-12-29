@@ -9,17 +9,17 @@ export async function loginUser(req, res, next) {
         let user = await userModel.findOne({ $or: [{ email: user_name }, { mobile: user_name }] });
 
         if (!user) {
-            return res.status(404).json({ success: true, data, message: "No user found" });
+            return res.status(404).json({ success: true, data: null, message: "No user found" });
         }
 
-        if(!user.isActive && user.isDeleted){
+        if (!user.isActive && user.isDeleted) {
             return res.status(404).json({ success: false, message: "Your Account is Deleted or Deactived Please contact Admin" });
         }
-        
+
         let match = await verifyPassword(password, user.password);
 
         if (!match) {
-            return res.status(403).json({ success: true, data, message: "Incorrect password" });
+            return res.status(403).json({ success: true, data: null, message: "Incorrect password" });
         }
 
         let token = generateToken({ id: user._id, role: user.role, mobile: user.mobile });
@@ -36,7 +36,7 @@ export async function loginUser(req, res, next) {
             isHttpOnly: true
         })
 
-        res.status(200).json({ success: true, user, message: "success" })
+        res.status(200).json({ success: true, data: user, message: "login success" })
 
     } catch (error) {
         res.status(500).json({ success: false, data: null, message: error.message })
@@ -100,7 +100,7 @@ export async function updateUser(req, res) {
 
 export async function deleteUser(req, res, next) {
     try {
-         let user = await userModel.findByIdAndUpdate(req.user._id, {isDeleted : true,isActive : false}, { new: true }).select("-password -__v");
+        let user = await userModel.findByIdAndUpdate(req.user._id, { isDeleted: true, isActive: false }, { new: true }).select("-password -__v");
 
         if (!user) {
             res.status(204).json({ success: false, user, message: "user not deleted" })
