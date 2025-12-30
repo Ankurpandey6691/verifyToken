@@ -71,10 +71,10 @@ export async function getSingleUser(req, res) {
     try {
 
         if (!req.user) {
-            return res.status(404).json({ success: true, data, message: "No user found" });
+            return res.status(404).json({ success: true, data : null, message: "No user found" });
         }
 
-        res.status(200).json({ success: true, user: req.user, message: "success" })
+        res.status(200).json({ success: true, data: req.user, message: "success" })
 
     } catch (error) {
         res.status(500).json({ success: false, data: null, message: error.message })
