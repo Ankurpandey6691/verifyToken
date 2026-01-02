@@ -1,5 +1,6 @@
 import chatModel from "../models/chat.model.js"
 import MessageModel from "../models/message.model.js"
+import userModel from "../models/user.model.js"
 import { getIo } from "../webSocket/socket.js";
 
 
@@ -13,18 +14,27 @@ export const accessChat = async (req, res) => {
             return res.status(400).json({ success: false, data: null, message: "receiverId required" });
         }
 
+        let receiver = await userModel.findById(receiverId).select("user_name email profile_pic bio mobile");
+        receiver = receiver.toObject();
+
         let chat = await chatModel.findOne({
             isGroup: false,
             members: { $all: [myId, receiverId], $size: 2 },
         }).populate("members last_message");
+        chat = chat.toObject();
 
-        if (chat) return res.status(200).json({ success: true, data: chat, message: "success" });
 
-        const newChat = await chatModel.create({
+        if (chat) {
+            chat.receiver = receiver;
+            return res.status(200).json({ success: true, data: chat, message: "success" });
+        }
+
+        let newChat = await chatModel.create({
             members: [myId, receiverId],
         });
+        newChat = newChat.toObject();
 
-
+        newChat.receiver = receiver;
         res.status(201).json({ success: true, data: newChat, message: "success" });
 
     } catch (error) {
@@ -104,11 +114,15 @@ export const sendMessage = async (req, res) => {
 
     try {
 
-        const getMessage = await MessageModel.create({
+        let getMessage = await MessageModel.create({
             chatId,
             sender: req.user._id,
             message,
         });
+
+        getMessage = getMessage.toObject();
+
+        getMessage.sender = req.user
 
         await chatModel.findByIdAndUpdate(chatId, {
             last_message: getMessage._id,
@@ -118,7 +132,7 @@ export const sendMessage = async (req, res) => {
 
         io.to(chatId).emit("newMessage", getMessage);
 
-        res.status(201).json({ success: true, data: message, message: "message Sent" });
+        res.status(201).json({ success: true, data: getMessage, message: "message Sent" });
 
     } catch (error) {
         res.status(500).json({ success: false, data: null, message: error.message });
