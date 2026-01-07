@@ -1,6 +1,7 @@
 import { hashPassword, verifyPassword } from "../config/bcrypt.config.js";
 import { generateToken } from "../config/jwt.config.js";
-import userModel from "../models/user.model.js"
+import userModel from "../models/user.model.js";
+import fs from "fs";
 
 // login user api
 export async function loginUser(req, res, next) {
@@ -71,7 +72,7 @@ export async function getSingleUser(req, res) {
     try {
 
         if (!req.user) {
-            return res.status(404).json({ success: true, data : null, message: "No user found" });
+            return res.status(404).json({ success: true, data: null, message: "No user found" });
         }
 
         res.status(200).json({ success: true, data: req.user, message: "success" })
@@ -107,6 +108,30 @@ export async function deleteUser(req, res, next) {
         }
 
         res.status(200).json({ success: true, user, message: "user Deleted" });
+    } catch (error) {
+        res.status(500).json({ success: false, data: null, message: error.message })
+    }
+}
+
+export async function uploadDp(req, res) {
+
+    try {
+        const ImageUrl = `${req.protocol}://${req.host}/${req.file.destination}/${req.file.filename}`
+
+        let user = await userModel.findByIdAndUpdate(req.user._id, { profile_pic: ImageUrl }, { new: true }).select("-password -__v");
+
+        if (!user) {
+            return res.status(204).json({ success: false, user, message: "profile picture not updated" });
+        }
+
+        if (req.user.profile_pic) {
+            let index = req.user.profile_pic.indexOf("uploads");
+            fs.rmSync(req.user.profile_pic.slice(index));
+        }
+
+
+        res.status(200).json({ success: true, user, message: "profile picture updated" });
+
     } catch (error) {
         res.status(500).json({ success: false, data: null, message: error.message })
     }

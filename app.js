@@ -28,7 +28,16 @@ app.use(express.static('public'));
 app.use('/', indexRouter);
 app.use('/auth', authRouter);
 app.use('/users', usersRouter);
-app.use("/chat", chatRouter)
+app.use("/chat", chatRouter);
+app.use("/uploads", express.static("uploads/", 
+//  for download file set headers;
+//   {
+//   setHeaders: (res, path) => {
+//     res.setHeader("Content-Disposition", "attachment");
+//     res.setHeader("Content-Type", "image/png")
+//   }
+// }
+))
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
