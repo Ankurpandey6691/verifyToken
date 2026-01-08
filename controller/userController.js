@@ -89,10 +89,10 @@ export async function updateUser(req, res) {
         let user = await userModel.findByIdAndUpdate(req.user._id, req.body, { new: true }).select("-password -__v");
 
         if (!user) {
-            res.status(204).json({ success: false, user, message: "user not updated" })
+            res.status(204).json({ success: false, data: null, message: "user not updated" })
         }
 
-        res.status(200).json({ success: true, user, message: "user Updated" });
+        res.status(200).json({ success: true, data: user, message: "user Updated" });
 
     } catch (error) {
         res.status(500).json({ success: false, data: null, message: error.message })
@@ -121,7 +121,7 @@ export async function uploadDp(req, res) {
         let user = await userModel.findByIdAndUpdate(req.user._id, { profile_pic: ImageUrl }, { new: true }).select("-password -__v");
 
         if (!user) {
-            return res.status(204).json({ success: false, user, message: "profile picture not updated" });
+            return res.status(204).json({ success: false, data: null, message: "profile picture not updated" });
         }
 
         if (req.user.profile_pic) {
@@ -130,7 +130,7 @@ export async function uploadDp(req, res) {
         }
 
 
-        res.status(200).json({ success: true, user, message: "profile picture updated" });
+        res.status(200).json({ success: true, data: user, message: "profile picture updated" });
 
     } catch (error) {
         res.status(500).json({ success: false, data: null, message: error.message })
