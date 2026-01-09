@@ -136,3 +136,35 @@ export async function uploadDp(req, res) {
         res.status(500).json({ success: false, data: null, message: error.message })
     }
 }
+
+export async function searchUsers(req, res) {
+    const { q } = req.query;
+
+    try {
+
+        if (!q || q.trim() === "") {
+            return res.status(400).json({ success: false, data: null, message: "Search query is required" });
+        }
+
+        // Regex for name & email (case-insensitive)
+        let regex = new RegExp(q, "i");
+
+        // If number, search phone also
+        const phoneQuery = !isNaN(q) ? Number(q) : null;
+
+        const users = await userModel.find({
+            isDeleted: false,
+            $or: [
+                { user_name: { $regex: regex } },
+                { email: { $regex: regex } },
+                ...(phoneQuery ? [{ mobile: phoneQuery }] : [])
+            ]
+        })
+            .select("user_name email phone avatar bio") // security
+            .limit(20);
+
+        return res.status(200).json({success : true, data : users, count : { count: users.length }});
+    } catch (error) {
+        return res.status(500).json({success : false, data : null, message : error.message});
+    }
+}

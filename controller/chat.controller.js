@@ -21,10 +21,10 @@ export const accessChat = async (req, res) => {
             isGroup: false,
             members: { $all: [myId, receiverId], $size: 2 },
         }).populate("members last_message");
-        chat = chat.toObject();
 
 
         if (chat) {
+            chat = chat.toObject();
             chat.receiver = receiver;
             return res.status(200).json({ success: true, data: chat, message: "success" });
         }

@@ -1,6 +1,6 @@
 import express from 'express';
 import { authOnlyUser } from '../middleware/auth.js';
-import { deleteUser, getSingleUser, updateUser, uploadDp } from '../controller/userController.js';
+import { deleteUser, getSingleUser, searchUsers, updateUser, uploadDp } from '../controller/userController.js';
 import { updateUserValidator } from '../validators/user.validator.js';
 import validate from '../middleware/validate.js';
 import { imageUpload } from '../config/multer.config.js';
@@ -15,6 +15,8 @@ router.patch("/", updateUserValidator, validate, updateUser)
 
 router.patch("/upload-dp", imageUpload.single("profile_pic"), uploadDp)
 
-router.delete("/",deleteUser)
+router.delete("/", deleteUser);
+
+router.get("/search", searchUsers)
 
 export default router;
